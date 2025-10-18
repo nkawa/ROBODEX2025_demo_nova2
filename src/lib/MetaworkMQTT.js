@@ -27,10 +27,11 @@ export const connectMQTT = (callback,optStr = "") => {
 
             const date = new Date();
             var devType = "browser";
+            console.log("Window Pathname:", window.location.pathname);
             if(window.location.pathname.endsWith("/viewer/")) {
                 devType = "robot";
-            }else if(window.location.pathname.endsWith("/simrobot/")) {
-                devType = "simulator";
+            }else if(window.location.pathname.endsWith("simRobot")) {
+                devType = "robot";
             }
 
             // 以下はレジストレーション手続き

@@ -83,7 +83,7 @@ AFRAME.registerComponent('arm-motion-ui', {
     if (!this.el?.shouldListenEvents) return;
     const ctrlEl = this?.vrControllerEl;
     if (!ctrlEl || !this.el.workerData || !this.el.workerRef) {
-      console.warn('workerData, workerRef or controller not ready yet.');
+//      console.warn('workerData, workerRef or controller not ready yet.');
       return;
     }
     if (this.triggerdownState && ~ctrlEl.laserVisible) {

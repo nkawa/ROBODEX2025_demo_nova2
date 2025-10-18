@@ -11,3 +11,23 @@ export const AppMode = {
   practice: 'practice',    // 練習モード (荷物を運ぶタイプ：VRのみ)
   monitor: 'monitor',    // 監視モード (ロボットの状態を監視する)
 };
+
+
+export function isControlMode(appmode) {
+  return (appmode === AppMode.normal ||
+          appmode === AppMode.withCam ||
+          appmode === AppMode.withDualCam);
+}
+
+export function isCameraMode(appmode) {
+  return (
+          appmode === AppMode.withCam ||
+          appmode === AppMode.withDualCam);
+}
+
+export function isNonControlMode(appmode) {
+  return (
+          appmode === AppMode.viewer ||
+          appmode === AppMode.simRobot ||
+          appmode === AppMode.monitor);
+}

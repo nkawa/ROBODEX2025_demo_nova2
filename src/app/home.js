@@ -12,21 +12,31 @@ import '../lib/ikWorker.js';
 import '../lib/reflectWorkerJoints.js';
 import '../lib/armMotionUI.js';
 
+import {setupMQTT} from '../lib/MQTT_jobs.js';
+
+
 //import StereoVideo from '../components/stereoWebRTC.js';
 
 export default function Home(props) {
+  const robotIDRef = React.useRef("none");
 
   const deg30 = Math.PI / 6.0;
   const deg90 = Math.PI / 2;
   const deg45 = Math.PI / 4;
   const deg22 = Math.PI / 8;
+
+// MQTT 対応
+  React.useEffect(() => {
+    setupMQTT(props, robotIDRef); // useEffect で1回だけ実行される。
+  }, []); 
+
   return (
     <>
       <a-scene scene xr-mode-ui={`enabled: ${!(props.appmode === AppMode.viewer) ? 'true' : 'false'}; XRMode: xr`} >
         <a-entity id="robot-registry"
           robot-registry
           event-distributor>
-          <VrControllerComponents />
+          <VrControllerComponents appmode={props.appmode} />
         </a-entity>
         <a-entity camera position="0 1.7 1"
           look-controls
