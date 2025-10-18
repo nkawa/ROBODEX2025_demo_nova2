@@ -1,0 +1,31 @@
+{
+  "name": "robodex2025-demo-nova2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev-https": "next dev --turbopack --experimental-https",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@ucl-nuee/ik-cd-worker": "https://github.com/TSUSAKA-ucl/ik-cd-worker/releases/download/ver.0.2.4/ucl-nuee-ik-cd-worker-0.2.4.tgz",
+    "aframe": "^1.7.1",
+    "bootstrap": "^5.3.8",
+    "mqtt": "^5.14.1",
+    "next": "15.5.5",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "sora-js-sdk": "^2025.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.5",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "base_link": {
+    "visual": [
+      {
+        "origin": { "$": { "rpyDegrees": [ 90, 0, 0 ], "xyz": [ 0.0, 0.003, 0.009 ]}},
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_BASE_ASM.gltf"
+        }}}
+      }
+    ]
+  },
+  "Link1": {
+    "visual": [
+      {
+        "origin": { "$": { "rpyDegrees": [ 0, 0, 90 ], "xyz": [ 0.215, 0, 0 ]}},
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_J1_ASM.gltf"
+        }}}
+      }
+    ]
+  },
+  "Link2": {
+    "visual": [
+      {
+        "origin": { "$": { "rpyDegrees": [ 0, 180, -90 ], "xyz": [ 0, 0, 0 ]}},
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_J2_ASM.gltf"
+        }}}
+      }
+    ]
+  },
+  "Link3": {
+    "visual": [
+      {
+        "origin": { "$": { "rpyDegrees": [ 0, 180, -90 ], "xyz": [ 0, 0, 0 ]}},
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_J3_ASM.gltf"
+        }}}
+      }
+    ]
+  },
+  "Link4": {
+    "visual": [
+      {
+        "origin": { "$": { "rpyDegrees": [ 180, 0, 0 ],  
+                  "xyz": [
+            -0.0,
+            -0.0,
+            -0.1155        ]
+      }},
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_J4_ASM.gltf"
+        }}}
+      }
+    ]
+  },
+  "Link5": {
+    "visual": [
+      {
+        "origin": { "$": { "rpyDegrees": [ 90, 0, 0 ], "xyz": [ 0, 0,-0.055]}},
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_J5_ASM.gltf"
+        }}}
+      }
+    ]
+  },
+  "Link6": {
+    "visual": [
+      {
+        "geometry": { "mesh": { "$": {
+          "filename": "NOVA2_J6_ASM.gltf"
+        }}}
+      }
+    ]
+  }
+}
