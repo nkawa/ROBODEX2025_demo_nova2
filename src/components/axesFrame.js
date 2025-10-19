@@ -3,7 +3,7 @@ const THREE = AFRAME.THREE;
 
 // let controllerPosition = null;
 // let controllerQuaternion = null;
-AFRAME.registerComponent('add-frameObject', {
+AFRAME.registerComponent('add-frameobject', {
   init: function () {
     // console.warn('#### parent:',this.el.parentNode,
     //              '#### this.el:', this.el);

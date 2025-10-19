@@ -16,7 +16,7 @@ let send_count = 0;
 let receive_state = false // ロボットの状態を受信してるかのフラグ
 
 export const sendRobotJointMQTT = (joints) => {
-  console.log("Joints!", joints)
+//  console.log("Joints!", joints)
   const ctl_json = JSON.stringify({
     time: send_count++,
     joints: joints,

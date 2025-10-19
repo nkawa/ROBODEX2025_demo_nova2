@@ -12,23 +12,55 @@ import '../lib/ikWorker.js';
 import '../lib/reflectWorkerJoints.js';
 import '../lib/armMotionUI.js';
 
-import {setupMQTT} from '../lib/MQTT_jobs.js';
-
+import { getCookie } from '../lib/cookie_id.js';
+import { setupMQTT } from '../lib/MQTT_jobs.js';
 
 //import StereoVideo from '../components/stereoWebRTC.js';
 
+
+
+// 角度、横方向のオフセットを Cookie から取得して初期化
+const getCookiesForInitalize = (appmode, setVrModeAngle, setVrModeOffsetX) => {
+  // Cookie, Offsetの取得
+  if (!(appmode === AppMode.viewer)) {
+    const wk_vrModeAngle = getCookie('vrModeAngle')
+    setVrModeAngle(wk_vrModeAngle ? parseFloat(wk_vrModeAngle) : -90);  // change default to 90
+    const wk_vrModeOffsetX = getCookie('vrModeOffsetX')
+    setVrModeOffsetX( wk_vrModeOffsetX ? parseFloat(wk_vrModeOffsetX) : 0.55); // デフォルト X 方向オフセット
+   // console.log("Cookie read vrModeAngle, OffsetX:", vrModeAngle_ref.current, vrModeOffsetX_ref.current);
+  }
+}
+
+
 export default function Home(props) {
-  const robotIDRef = React.useRef("none");
+  const robotIDRef = React.useRef("robot_id_reference"); // ロボットUUID 保持用
+  
+  const [vrModeAngle,setVrModeAngle] = React.useState(-180);       // ロボット回転角度
+  const [vrModeOffsetX,setVrModeOffsetX] = React.useState(0.55);   // X offset
+  const [base_rotation, setBaseRotation] = React.useState(`-90 -180 0`);
+  const [base_position, setBasePosition] = React.useState(`0.55 0.55 -1`);
 
   const deg30 = Math.PI / 6.0;
   const deg90 = Math.PI / 2;
   const deg45 = Math.PI / 4;
   const deg22 = Math.PI / 8;
 
-// MQTT 対応
+  // MQTT 対応
   React.useEffect(() => {
     setupMQTT(props, robotIDRef); // useEffect で1回だけ実行される。
-  }, []); 
+  }, []);
+
+  // Cookie から初期値取得
+  React.useEffect(()=>{ 
+     getCookiesForInitalize(props.appmode, setVrModeAngle, setVrModeOffsetX);
+  },[]);
+  // base_position, base_rotation 更新
+  React.useEffect(()=>{
+    setBasePosition(`${vrModeOffsetX} 0.55 -1`);
+    setBaseRotation(`-90 ${vrModeAngle} 0`);
+    console.log("Home base_pos, rotation:", base_position, base_rotation);
+  },[vrModeAngle, vrModeOffsetX]);
+
 
   return (
     <>
@@ -41,11 +73,11 @@ export default function Home(props) {
         <a-entity camera position="0 1.7 1"
           look-controls
           wasd-controls="acceleration: 200"
-          ></a-entity>
+        ></a-entity>
 
 
         <a-plane id="nova2-plane"
-          position="0 0.6 -1" rotation="-90 0 90"
+          position={base_position} rotation={base_rotation}
 
           width="1" height="1" color="#7BC8A4"
           material="opacity: 0.5; transparent: true; side: double;"
