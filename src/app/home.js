@@ -13,6 +13,7 @@ import '../compo_aframe/reflectWorkerJoints.js';
 import '../compo_aframe/armMotionUI.js';
 import '../compo_aframe/gripControl.js';
 import '../compo_aframe/default_event_target.js';
+import '../compo_aframe/motionFilter.js'
 
 import { getCookie } from '../lib/cookie_id.js';
 import { setupMQTT } from '../lib/MQTT_jobs.js';
@@ -95,6 +96,7 @@ export default function Home(props) {
           robot-loader="model: nova2_robot"
           ik-worker={initial_pose}
           reflect-worker-joints={`appmode: ${props.appmode}`}
+          motion-dynamic-filter
           arm-motion-ui
           grip-control
           default-event-target

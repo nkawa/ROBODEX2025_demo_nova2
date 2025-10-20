@@ -44,6 +44,11 @@ AFRAME.registerComponent('arm-motion-ui', {
     this.el.object3D.quaternion];
     this.baseToWorld = isoInvert(this.worldToBase);
 
+    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0),
+    new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0),
+    new THREE.Quaternion(0, 0, 0, 1)];
+
     this.el.addEventListener('triggerdown', (evt) => {
       console.log('### trigger down event. laserVisible: ',
         evt.detail?.originalTarget.laserVisible);
@@ -59,6 +64,8 @@ AFRAME.registerComponent('arm-motion-ui', {
             = isoMultiply(isoInvert([ctrlEl.object3D.position,
             ctrlEl.object3D.quaternion]),
               this.worldToBase);
+          this.vrCtrlLastPose = isoMultiply(this.baseToWorld, [ctrlEl.object3D.position, ctrlEl.object3D.quaternion]);
+          this.vrCtrlLastFilteredPose = isoMultiply(this.baseToWorld, [ctrlEl.object3D.position, ctrlEl.object3D.quaternion]);
         }
       }
     });
@@ -81,7 +88,9 @@ AFRAME.registerComponent('arm-motion-ui', {
   },
 
   // ********
-  tick: function () {
+  tick: function (time, deltatime) {
+    const motionFiltering = this.el.components['motion-dynamic-filter'];
+    console.log(motionFiltering)
     if (!this.el?.shouldListenEvents) return;
     const ctrlEl = this?.vrControllerEl;
     if (!ctrlEl || !this.el.workerData || !this.el.workerRef) {
@@ -92,8 +101,27 @@ AFRAME.registerComponent('arm-motion-ui', {
       const vrControllerPose = isoMultiply(this.baseToWorld,
         [ctrlEl.object3D.position,
         ctrlEl.object3D.quaternion]);
-      const vrControllerDelta = isoMultiply(this.vrCtrlStartingPoseInv,
-        vrControllerPose);
+
+      const vrCtrlLastPoseInv = isoInvert(this.vrCtrlLastPose)
+      const vrCtrlDiffTick = isoMultiply(vrCtrlLastPoseInv, vrControllerPose)
+      let vrCtrlDiffTickFiltered = [vrCtrlDiffTick[0], vrCtrlDiffTick[1]]
+      const motionFiltering = this.el.components['motion-dynamic-filter'];
+      
+      console.log(motionFiltering)
+      if (motionFiltering) {
+        const filtered = motionFiltering.applyFilters({
+          detail: {
+            position: vrCtrlDiffTick[0],
+            quaternion: vrCtrlDiffTick[1],
+            deltatime: deltatime
+          }
+        });
+        vrCtrlDiffTickFiltered = [filtered.position, filtered.quaternion];
+      }
+      this.vrCtrlLastFilteredPose = isoMultiply(this.vrCtrlLastFilteredPose, vrCtrlDiffTickFiltered)
+      const vrControllerDelta = isoMultiply(this.vrCtrlStartingPoseInv, this.vrCtrlLastFilteredPose)
+      this.vrCtrlLastPose = vrControllerPose
+
       vrControllerDelta[0] = vrControllerDelta[0].multiplyScalar(1.0);
       vrControllerDelta[1].normalize();
       const vrCtrlToObj = [new THREE.Vector3(0, 0, 0),
