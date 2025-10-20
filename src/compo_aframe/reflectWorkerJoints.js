@@ -2,7 +2,8 @@
 // Please use the AFRAME.THREE to setRotationFromAxisAngle
 // instead of the THREE.js one.
 import AFRAME from 'aframe';
-import {sendRobotJointMQTT} from './MQTT_jobs'
+import {sendRobotJointMQTT, sendRobotStateMQTT} from '../lib/MQTT_jobs'
+import {  isNonControlMode} from '../app/appmode';
 
 // AFRAME.registerComponent('set-joints-directly-in-degree', {
 AFRAME.registerComponent('set-joints-directly-in-degree', {
@@ -29,7 +30,16 @@ AFRAME.registerComponent('set-joints-directly-in-degree', {
 });
 
 AFRAME.registerComponent('reflect-worker-joints', {
+	schema: {
+		appmode: {type: 'string', default: ''}, // appmode を伝える
+	},
 	init: function () {
+		console.log("reflect-worker-joints initialized. appmode:", this.data.appmode);
+		if (isNonControlMode(this.data.appmode)){
+			this.sendMQTT = sendRobotStateMQTT;
+		}else{
+			this.sendMQTT = sendRobotJointMQTT;
+		}
 		this.workerDataJointsReady = false;
 		this.el.addEventListener('ik-worker-start', () => {
 			const robotId = this.el.id;
@@ -83,7 +93,8 @@ AFRAME.registerComponent('reflect-worker-joints', {
 			});
 
 			// ここで同時にMQTT の送信も行う
-			sendRobotJointMQTT(jointData);
+			// Gripper の情報はどうやって共有するか？
+			this.sendMQTT(jointData, this.el.gripState);
 		}
 	}
 });

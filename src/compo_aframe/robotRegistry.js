@@ -121,8 +121,9 @@ AFRAME.registerComponent('default-target', {
     event: { default: 'thumbmenu-select' }
   },
   init: function () {
+    console.log("Set default-target");
     // ロボットの読み込みが終わったら！
-      this.el.addEventListener('robot-dom-ready', () => {
+      this.el.addEventListener('ik-worker-start', () => {
         const robotRegistryComp = this.el.sceneEl.robotRegistryComp;
         robotRegistryComp?.eventDeliveryOneLocation(this.el.id); // デフォルトでここだけに！
         console.log('### default-target: enabled event delivery for id:', this.el.id);

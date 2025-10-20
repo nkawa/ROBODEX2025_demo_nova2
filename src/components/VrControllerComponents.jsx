@@ -1,8 +1,8 @@
 // ********
 // ********
 import AFRAME from 'aframe';
-import './vrControllerThumbMenu.js'; // with thumbMenuEventHandler
-import './axesFrame.js';
+import '../compo_aframe/vrControllerThumbMenu.js'; // with thumbMenuEventHandler
+import '../compo_aframe/axesFrame.js';
 import { isControlMode, AppMode } from '../app/appmode.js';
 
 export default VrControllerComponents;

@@ -5,12 +5,14 @@ const THREE = window.AFRAME.THREE; // これで　AFRAME と　THREEを同時に
 
 import { AppMode } from './appmode.js';
 
-import '../lib/robotRegistry.js';
-import '../lib/robotLoader.js';
+import '../compo_aframe/robotRegistry.js';
+import '../compo_aframe/robotLoader.js';
 import VrControllerComponents from '../components/VrControllerComponents.jsx';
-import '../lib/ikWorker.js';
-import '../lib/reflectWorkerJoints.js';
-import '../lib/armMotionUI.js';
+import '../compo_aframe/ikWorker.js';
+import '../compo_aframe/reflectWorkerJoints.js';
+import '../compo_aframe/armMotionUI.js';
+import '../compo_aframe/gripControl.js';
+import '../compo_aframe/default_event_target.js';
 
 import { getCookie } from '../lib/cookie_id.js';
 import { setupMQTT } from '../lib/MQTT_jobs.js';
@@ -37,17 +39,25 @@ export default function Home(props) {
   
   const [vrModeAngle,setVrModeAngle] = React.useState(-180);       // ロボット回転角度
   const [vrModeOffsetX,setVrModeOffsetX] = React.useState(0.55);   // X offset
-  const [base_rotation, setBaseRotation] = React.useState(`-90 -180 0`);
-  const [base_position, setBasePosition] = React.useState(`0.55 0.55 -1`);
+  const [base_rotation, setBaseRotation] = React.useState(`-90 -180 0`);     // ベース角度
+  const [base_position, setBasePosition] = React.useState(`0.55 0.55 -1`);   // ベース位置
+
+  const nova2_ref = React.useRef(null);
 
   const deg30 = Math.PI / 6.0;
   const deg90 = Math.PI / 2;
   const deg45 = Math.PI / 4;
   const deg22 = Math.PI / 8;
 
+  // モードに応じて初期ポーズを変更
+  let initial_pose = `${deg90}, ${-deg90}, ${deg90}, 0, ${-deg90}, 0`;
+  if (props.appmode === AppMode.simRobot) {
+    initial_pose = `${deg45}, ${-deg90}, ${deg45}, 0, ${-deg90}, 0`;
+  }
+
   // MQTT 対応
   React.useEffect(() => {
-    setupMQTT(props, robotIDRef); // useEffect で1回だけ実行される。
+    setupMQTT(props, robotIDRef, nova2_ref); // useEffect で1回だけ実行される。
   }, []);
 
   // Cookie から初期値取得
@@ -77,15 +87,17 @@ export default function Home(props) {
 
 
         <a-plane id="nova2-plane"
+          ref={nova2_ref}
           position={base_position} rotation={base_rotation}
 
           width="1" height="1" color="#7BC8A4"
           material="opacity: 0.5; transparent: true; side: double;"
           robot-loader="model: nova2_robot"
-          ik-worker={`${deg90}, ${-deg90}, ${deg90}, 0, ${-deg90}, 0`}
-          default-target
-          reflect-worker-joints
+          ik-worker={initial_pose}
+          reflect-worker-joints={`appmode: ${props.appmode}`}
           arm-motion-ui
+          grip-control
+          default-event-target
         />
         {/* <a-sky color="#ECECEC"></a-sky> 
                    ik-worker={`${deg90}, ${-deg90}, ${deg90}, 0, ${-deg90}, 0`}

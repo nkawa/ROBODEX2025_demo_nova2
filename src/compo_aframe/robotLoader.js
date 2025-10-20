@@ -9,6 +9,7 @@ AFRAME.registerComponent('robot-loader', {
     const onLoaded = async () => {
       if (await urdfLoader2(this.el, this.data.model)) {
         this.el.model = this.data.model;
+        console.log("Robot model loaded:", this.el.id);
         this.el.emit('robot-dom-ready');
       } else {
         console.error('urdfLoader causes error.',
@@ -197,7 +198,7 @@ async function urdfLoader2(planeEl,
 
 // ******** support functions ********
 //
-function updateLeaves(a, b, path='') {
+function updateLeaves(a, b, path = '') {
   for (const key in b) {
     if (!(key in a)) continue; // aに存在しないキーは無視
     const bVal = b[key];
@@ -215,7 +216,7 @@ function updateLeaves(a, b, path='') {
     } else {
       // 配列やオブジェクトでない値は上書き
       a[key] = bVal;
-      console.log("Update key:",path, key, "to", bVal);
+      console.log("Update key:", path, key, "to", bVal);
     }
   }
   return a;

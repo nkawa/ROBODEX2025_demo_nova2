@@ -1,6 +1,7 @@
 import AFRAME from 'aframe';
 // const THREE = window.AFRAME.THREE;
-import IkWorkerManager from '@ucl-nuee/ik-cd-worker';
+import IkWorkerManager from './IkWorkerManager.js';
+//import { ToolPointMover } from '@ucl-nuee/ik-cd-worker';
 
 AFRAME.registerComponent('ik-worker', {
   schema: { type: 'array' }, // intial joint value
@@ -24,13 +25,16 @@ AFRAME.registerComponent('ik-worker', {
       const topicBridgeWebSocketURL =
         // `${bridgeProtocol}//${location.hostname}:${bridgePort}`;
         null;
-      this.remove = IkWorkerManager({
+      this.remove = IkWorkerManager({// ここでWorker を読み出す
         robotName: this.el.model,
         initialJoints,
         workerRef,
         workerData,
         topicBridgeWebSocketURL
       });
+
+// 
+//      this.toolPointMover = new ToolPointMover(workerRef);
       // This robot may be or may NOT be REGISTERED in 'robot-registry'
       // before the emission of 'robot-dom-ready' by urdfLoader2
       // Here, use the add function to register it in the registry.
