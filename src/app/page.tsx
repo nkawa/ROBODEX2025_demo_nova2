@@ -131,6 +131,15 @@ export default function Page() {
           <a href="/nova2_normal" className="button">
             実験を始める
           </a>
+          <a href="/nova2_simRobot" className="button">
+            仮想ロボット
+          </a>
+          <a href="/practice" className="button">
+            練習モード
+          </a>
+          <a href="/nova2_withDualCam" className="button">
+            カメラ付き(notyet)
+          </a>
         </div>
       </div>
     );
