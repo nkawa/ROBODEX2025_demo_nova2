@@ -89,8 +89,6 @@ AFRAME.registerComponent('arm-motion-ui', {
 
   // ********
   tick: function (time, deltatime) {
-    const motionFiltering = this.el.components['motion-dynamic-filter'];
-//    console.log(motionFiltering)
     if (!this.el?.shouldListenEvents) return;
     const ctrlEl = this?.vrControllerEl;
     if (!ctrlEl || !this.el.workerData || !this.el.workerRef) {
@@ -107,7 +105,7 @@ AFRAME.registerComponent('arm-motion-ui', {
       let vrCtrlDiffTickFiltered = [vrCtrlDiffTick[0], vrCtrlDiffTick[1]]
       const motionFiltering = this.el.components['motion-dynamic-filter'];
       
-      console.log(motionFiltering)
+//      console.log(motionFiltering)
       if (motionFiltering) {
         const filtered = motionFiltering.applyFilters({
           detail: {

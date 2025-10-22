@@ -96,11 +96,11 @@ export default function Home(props) {
           robot-loader="model: nova2_robot"
           ik-worker={initial_pose}
           reflect-worker-joints={`appmode: ${props.appmode}`}
-          motion-dynamic-filter
           arm-motion-ui
           grip-control
           default-event-target
         />
+          {/* motion-dynamic-filter */}
         {/* <a-sky color="#ECECEC"></a-sky> 
                    ik-worker={`${deg90}, ${-deg90}, ${deg90}, 0, ${-deg90}, 0`}
 
