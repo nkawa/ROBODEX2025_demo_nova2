@@ -36,7 +36,7 @@ let firstReceiveJoint = true; // 最初のジョイント受信フラグ
 export const sendRobotJointMQTT = (joints, gripState) => {
   //  console.log("Joints!", joints)
   if (receive_state != JointReceiveStatus.READY) {
-    console.log("Not yet received", receive_state, firstReceiveJoint);
+    console.log("Not yet real robot joint received", receive_state, firstReceiveJoint);
     return; // 最初の受信まで送らない
   }
   const ctl_json = JSON.stringify({
@@ -62,13 +62,14 @@ export const sendRobotStateMQTT = (joints, gripState) => {
 const waitSlrmReady = async (robotDOMRef, message) => {
   let received = true, count = 0;
   if (robotDOMRef.current && robotDOMRef.current.workerRef) {
-    const workerStatus = robotDOMRef.current.workerData.current.status;
-    while (workerStatus.status != "END") {
+    const workerData = robotDOMRef.current.workerData;
+    while (workerData.current.status.status != "END") {
       await sleep(100);
       //                  console.log("Waiting for SLRM_READY...", workerStatus);
       count++;
+      if (count % 10 ==0) console.log("wait READY",count, workerData.current.status)
       if (count > 100) { // 10秒待っても来なかったら諦める
-        console.log(message);
+        console.log(message, workerData.current.status);
         received = false;
         break;
       }
@@ -201,11 +202,17 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
             receive_state = JointReceiveStatus.JOINT_RECEIVED;
             if (robotDOMRef.current && robotDOMRef.current.workerRef) {
               const workerRef = robotDOMRef.current.workerRef;
-              console.log("Got Robot POSE to workerRef:", workerRef, data.joints)
+              let jdef = data.joints;
+              if (!jdef){
+                const joints = [data.j1, data.j2, data.j3, data.j4, data.j5, data.j6]
+                jdef = joints.map(deg => deg * Math.PI / 180);
+              }
+              console.log("Got Robot POSE to workerRef:", workerRef, jdef)
+              
               workerRef.current?.postMessage(
                 {
                   type: 'set_initial_joints',
-                  joints: data.joints
+                  joints: jdef
                 }); // このPOST 結果が終わったら READY になる
 
             }
@@ -213,6 +220,7 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
             if (props.appmode !== AppMode.monitor) {
               firstReceiveJoint = false
               window.setTimeout(async () => {
+                console.log("*** wait SLRM_READY")
                 const received = await waitSlrmReady(robotDOMRef, "Timeout waiting for SLRM_READY sending movement");
                 if (received) {
                   receive_state = JointReceiveStatus.READY;
