@@ -22,10 +22,11 @@ AFRAME.registerComponent('arm-motion-ui', {
     const frameMarker = document.createElement('a-entity');
     console.log("Arm motion ui initializing!!")
     // target 表示用
-    frameMarker.setAttribute('a-axes-frame', {
-      length: 0.10,
-      radius: 0.005,
-      sphere: 0.02,
+    frameMarker.setAttribute('a-xy-axes-frame', {
+      length: 0.05,
+      radius: 0.002,
+      sphere: 0.008,
+      opacity: 0.7,
       color: myColor ? myColor : 'blue',
     });
     this.el.appendChild(frameMarker);

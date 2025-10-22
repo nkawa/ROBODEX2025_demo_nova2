@@ -30,6 +30,7 @@ AFRAME.registerComponent('a-axes-frame', {
     length: {type: 'number', default: 0.2 },
     radius: {type: 'number', default: 0.0035 },
     sphere: {type: 'number', default: 0.012 },
+    opacity: {type: 'number', default: 1},
     color: {type: 'string', default: 'white' }
   },
   init: function () {
@@ -43,6 +44,8 @@ AFRAME.registerComponent('a-axes-frame', {
     });
     this.el.setAttribute('material', {
       color: this.data.color,
+      opacity : this.data.opacity,
+      tranparent: this.data.opacity < 1.0
     });
 
     this.el.setAttribute('scale', '1 1 1');
@@ -52,6 +55,42 @@ AFRAME.registerComponent('a-axes-frame', {
     const xAxis = createCylinder(length, [1,0,0],radius, 'red');
     const yAxis = createCylinder(length, [0,1,0],radius, '#00ff00');
     const zAxis = createCylinder(length, [0,0,1],radius, 'blue');
+    this.el.appendChild(xAxis);
+    this.el.appendChild(yAxis);
+    this.el.appendChild(zAxis);
+  }
+});
+
+AFRAME.registerComponent('a-xy-axes-frame', {
+  schema: {
+    length: {type: 'number', default: 0.2 },
+    radius: {type: 'number', default: 0.0035 },
+    sphere: {type: 'number', default: 0.012 },
+    opacity: {type: 'number', default: 1},
+    color: {type: 'string', default: 'white' }
+  },
+  init: function () {
+    if (this.el.parentNode.getAttribute('thumbmenu-event-handler')) {
+      console.warn('**** parent has thumbmenu-event-handler ');
+      this.el.parentNode.frameObject = this.el;
+    }
+    this.el.setAttribute('geometry', {
+      primitive: 'sphere',
+      radius: this.data.sphere,
+    });
+    this.el.setAttribute('material', {
+      color: this.data.color,
+      opacity : this.data.opacity,
+      tranparent: this.data.opacity < 1.0
+    });
+
+    this.el.setAttribute('scale', '1 1 1');
+
+    const length = this.data.length;
+    const radius = this.data.radius;
+    const xAxis = createCylinder(length, [1,0,0],radius, 'red');
+    const yAxis = createCylinder(length, [0,1,0],radius, '#00ff00');
+    const zAxis = createCylinder(length, [0,0,-1],radius, 'blue');
     this.el.appendChild(xAxis);
     this.el.appendChild(yAxis);
     this.el.appendChild(zAxis);

@@ -14,6 +14,7 @@ import '../compo_aframe/armMotionUI.js';
 import '../compo_aframe/gripControl.js';
 import '../compo_aframe/default_event_target.js';
 import '../compo_aframe/motionFilter.js'
+import '../compo_aframe/model_opacity.js'
 
 import { getCookie } from '../lib/cookie_id.js';
 import { setupMQTT } from '../lib/MQTT_jobs.js';
