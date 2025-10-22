@@ -39,9 +39,12 @@ export const sendRobotJointMQTT = (joints, gripState) => {
     console.log("Not yet real robot joint received", receive_state, firstReceiveJoint);
     return; // 最初の受信まで送らない
   }
+  // 角度への変換を実施
+  const degJoints = joints.map(rad => rad * 180 / Math.PI)
+  degJoints[1] += 90 
   const ctl_json = JSON.stringify({
     time: send_count++,
-    joints: joints,
+    joints: degJoints,
     grip: [gripState],
   });
   publishMQTT(MQTT_CTRL_TOPIC, ctl_json);
@@ -193,7 +196,7 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
 
         if (topic === MQTT_ROBOT_STATE_TOPIC + robotIDRef.current) { // ロボットの姿勢を受け取ったら
           let data = JSON.parse(message.toString()) ///
-          const joints = data.joints
+//          const joints = data.joints
           // ここで、joints の安全チェックをすべき
           // 常時受信する形に変更されたので　Unsubscribeしない
           //          console.log("Robot state topic:", joints)
@@ -202,10 +205,14 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
             receive_state = JointReceiveStatus.JOINT_RECEIVED;
             if (robotDOMRef.current && robotDOMRef.current.workerRef) {
               const workerRef = robotDOMRef.current.workerRef;
-              let jdef = data.joints;
+              let jdef = data.joints
               if (!jdef){
                 const joints = [data.j1, data.j2, data.j3, data.j4, data.j5, data.j6]
                 jdef = joints.map(deg => deg * Math.PI / 180);
+              }else{// 
+                jdef.pop()
+                jdef[1] -= 90 // ここで差分調整
+                jdef = jdef.map(deg => deg * Math.PI / 180);
               }
               console.log("Got Robot POSE to workerRef:", workerRef, jdef)
               
