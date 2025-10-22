@@ -26,7 +26,7 @@ const getCookiesForInitalize = (appmode, setVrModeAngle, setVrModeOffsetX) => {
   // Cookie, Offsetの取得
   if (!(appmode === AppMode.viewer)) {
     const wk_vrModeAngle = getCookie('vrModeAngle')
-    setVrModeAngle(wk_vrModeAngle ? parseFloat(wk_vrModeAngle) : -90);  // change default to 90
+    setVrModeAngle(wk_vrModeAngle ? parseFloat(wk_vrModeAngle) : 180);  // change default to 90
     const wk_vrModeOffsetX = getCookie('vrModeOffsetX')
     setVrModeOffsetX( wk_vrModeOffsetX ? parseFloat(wk_vrModeOffsetX) : 0.55); // デフォルト X 方向オフセット
    // console.log("Cookie read vrModeAngle, OffsetX:", vrModeAngle_ref.current, vrModeOffsetX_ref.current);
@@ -50,7 +50,7 @@ export default function Home(props) {
   const deg22 = Math.PI / 8;
 
   // モードに応じて初期ポーズを変更
-  let initial_pose = `${deg90}, ${-deg90}, ${deg90}, 0, ${-deg90}, 0`;
+  let initial_pose = `${-deg90}, ${-deg90}, ${-deg90}, 0, ${deg90}, 0`;
   if (props.appmode === AppMode.simRobot) {
     initial_pose = `${deg45}, ${-deg90}, ${deg45}, 0, ${-deg90}, 0`;
   }

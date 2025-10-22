@@ -166,6 +166,17 @@ async function urdfLoader2(planeEl,
       axisEl.appendChild(el);
       setUrdfOrigin(el, origin);
       el.setAttribute('gltf-model', gltfDirPath + filename);
+
+      ///// SPETIAL HACK for nova2 end effector ///// // notGOOD!
+      if (filename === 'NOVA2_J6_ASM.gltf'){
+        const el2 = document.createElement('a-entity');
+        el2.setAttribute('class', 'visual');
+        el.appendChild(el2);
+        setUrdfOrigin(el2, { $: { xyz: [0.0, 0, 0.12], rpyDegrees: [-90, -90, 0] } });
+        el2.setAttribute('gltf-model', gltfDirPath + 'CONVUM_SGE-M5-N.gltf');
+      }
+
+
     });
   });
   console.log('Final: base link:', base, 'end link:', parentEl);
