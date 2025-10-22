@@ -174,6 +174,8 @@ async function urdfLoader2(planeEl,
         el.appendChild(el2);
         setUrdfOrigin(el2, { $: { xyz: [0.0, 0, 0.12], rpyDegrees: [-90, -90, 0] } });
         el2.setAttribute('gltf-model', gltfDirPath + 'CONVUM_SGE-M5-N.gltf');
+
+        // we need to add joint length!
       }
 
 

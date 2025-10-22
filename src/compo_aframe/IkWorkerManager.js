@@ -31,6 +31,12 @@ export default function IkWorkerManager({ robotName,
             });
           break;
         case 'generator_ready':
+          // only for nova2 with convum
+          workerRef.current
+            .postMessage({
+              type: 'set_end_effector_point',
+              endEffectorPoint: [0,0,0.12+0.095]
+            });
           workerRef.current
             .postMessage({
               type: 'set_exact_solution',

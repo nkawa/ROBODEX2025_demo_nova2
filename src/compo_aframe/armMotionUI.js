@@ -90,7 +90,7 @@ AFRAME.registerComponent('arm-motion-ui', {
   // ********
   tick: function (time, deltatime) {
     const motionFiltering = this.el.components['motion-dynamic-filter'];
-    console.log(motionFiltering)
+//    console.log(motionFiltering)
     if (!this.el?.shouldListenEvents) return;
     const ctrlEl = this?.vrControllerEl;
     if (!ctrlEl || !this.el.workerData || !this.el.workerRef) {
