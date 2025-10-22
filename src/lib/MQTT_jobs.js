@@ -9,6 +9,8 @@ const MQTT_REQUEST_TOPIC = "mgr/request";
 const MQTT_DEVICE_TOPIC = "dev/" + idtopic;
 const MQTT_CTRL_TOPIC = "control/" + idtopic; // 自分のIDに制御を送信
 const MQTT_ROBOT_STATE_TOPIC = "robot/";
+
+const NOVA2_JOINT2_DIFF = 90; 
 //const MQTT_AIST_LOGGER_TOPIC = "AIST/logger/Cobotta";
 
 // sleep function using promise
@@ -41,7 +43,7 @@ export const sendRobotJointMQTT = (joints, gripState) => {
   }
   // 角度への変換を実施
   const degJoints = joints.map(rad => rad * 180 / Math.PI)
-  degJoints[1] += 90 
+  degJoints[1] += NOVA2_JOINT2_DIFF // for nova2 <-> internal 変換
   const ctl_json = JSON.stringify({
     time: send_count++,
     joints: degJoints,
@@ -144,21 +146,25 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
               "control/" + udata.devId
             ]);
           }
-        } else if (topic === "control/" + robotIDRef.current) {
+        } else if (topic === "control/" + robotIDRef.current) {// ここも角度で飛んでくる
           let data = JSON.parse(message.toString())
           if (data.joints !== undefined) {
             // 次のフレームあとにtarget を確認してもらう（IKが出来てるはず
-            console.log("Viewer,Sim  control topic:", data.joints)
+            // nova2 変換
+            data.joints[1] -= NOVA2_JOINT2_DIFF
+            const jdef = data.joints.map(deg => deg * Math.PI / 180);
+
+            console.log("Viewer,Sim  control topic:", jdef)
             // 各joint 情報を worker に送信！
             console.log("robotDOMRef:", robotDOMRef);
 
             if (robotDOMRef.current && robotDOMRef.current.workerRef) {
               const workerRef = robotDOMRef.current.workerRef;
-              console.log("Send to workerRef:", workerRef, data.joints)
+              console.log("Send to workerRef:", workerRef, jdef)
               workerRef.current?.postMessage(
                 {
                   type: 'set_initial_joints',
-                  joints: data.joints
+                  joints: jdef
                 })
             }
 
@@ -210,8 +216,8 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
                 const joints = [data.j1, data.j2, data.j3, data.j4, data.j5, data.j6]
                 jdef = joints.map(deg => deg * Math.PI / 180);
               }else{// 
-                jdef.pop()
-                jdef[1] -= 90 // ここで差分調整
+                if (jdef.length ===7) jdef.pop() // Robot device は7つ送ってくる
+                jdef[1] -= NOVA2_JOINT2_DIFF // ここで差分調整// for nova2 <-> internal 変換
                 jdef = jdef.map(deg => deg * Math.PI / 180);
               }
               console.log("Got Robot POSE to workerRef:", workerRef, jdef)
