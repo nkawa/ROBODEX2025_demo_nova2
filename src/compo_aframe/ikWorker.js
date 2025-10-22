@@ -1,7 +1,7 @@
 import AFRAME from 'aframe';
 // const THREE = window.AFRAME.THREE;
 import IkWorkerManager from './IkWorkerManager.js';
-import { ToolPointMover } from './IkWorkerManager.js';
+//import { ToolPointMover } from './IkWorkerManager.js';
 
 AFRAME.registerComponent('ik-worker', {
   schema: { type: 'array' }, // intial joint value
@@ -34,7 +34,7 @@ AFRAME.registerComponent('ik-worker', {
       });
 
 // 
-      this.toolPointMover = new ToolPointMover(workerRef);
+//      this.toolPointMover = new ToolPointMover(workerRef);
       // This robot may be or may NOT be REGISTERED in 'robot-registry'
       // before the emission of 'robot-dom-ready' by urdfLoader2
       // Here, use the add function to register it in the registry.
