@@ -166,7 +166,7 @@ async function urdfLoader2(planeEl,
       axisEl.appendChild(el);
       setUrdfOrigin(el, origin);
       el.setAttribute('gltf-model', gltfDirPath + filename);
-      el.setAttribute('model-opacity', '0.7')
+      el.setAttribute('model-opacity', '0.4')
 
       ///// SPETIAL HACK for nova2 end effector ///// // notGOOD!
       if (filename === 'NOVA2_J6_ASM.gltf'){
@@ -175,7 +175,7 @@ async function urdfLoader2(planeEl,
         el.appendChild(el2);
         setUrdfOrigin(el2, { $: { xyz: [0.0, 0, 0.12], rpyDegrees: [-90, -90, 0] } });
         el2.setAttribute('gltf-model', gltfDirPath + 'CONVUM_SGE-M5-N.gltf');
-        el2.setAttribute('model-opacity', '0.7')
+        el2.setAttribute('model-opacity', '0.4')
 
         // we need to add joint length!
       }

@@ -1,9 +1,8 @@
 import AFRAME from 'aframe';
 
 AFRAME.registerComponent("model-opacity", {
-  schema: {
-    opacity: { type: "number", default: 0.5 }
-  },
+  schema: { default: 0.5 }
+  ,
   init: function () {
     this.el.addEventListener("model-loaded", this.update.bind(this));
   },
@@ -15,8 +14,8 @@ AFRAME.registerComponent("model-opacity", {
     }
     mesh.traverse(function (node) {
       if (node.isMesh) {
-        node.material.opacity = data.opacity;
-        node.material.transparent = data.opacity < 1.0;
+        node.material.opacity = data;
+        node.material.transparent = data < 1.0;
         node.material.needsUpdate = true;
         //                  node.material.format = THREE.RGBAFormat;
       }

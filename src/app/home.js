@@ -19,7 +19,7 @@ import '../compo_aframe/model_opacity.js'
 import { getCookie } from '../lib/cookie_id.js';
 import { setupMQTT } from '../lib/MQTT_jobs.js';
 
-//import StereoVideo from '../components/stereoWebRTC.js';
+import StereoVideo from '../components/stereoWebRTC.js';
 
 
 
@@ -30,19 +30,28 @@ const getCookiesForInitalize = (appmode, setVrModeAngle, setVrModeOffsetX) => {
     const wk_vrModeAngle = getCookie('vrModeAngle')
     setVrModeAngle(wk_vrModeAngle ? parseFloat(wk_vrModeAngle) : 180);  // change default to 90
     const wk_vrModeOffsetX = getCookie('vrModeOffsetX')
-    setVrModeOffsetX( wk_vrModeOffsetX ? parseFloat(wk_vrModeOffsetX) : 0.55); // デフォルト X 方向オフセット
-   // console.log("Cookie read vrModeAngle, OffsetX:", vrModeAngle_ref.current, vrModeOffsetX_ref.current);
+    setVrModeOffsetX(wk_vrModeOffsetX ? parseFloat(wk_vrModeOffsetX) : 0.55); // デフォルト X 方向オフセット
+    // console.log("Cookie read vrModeAngle, OffsetX:", vrModeAngle_ref.current, vrModeOffsetX_ref.current);
   }
 }
 
 
 export default function Home(props) {
   const robotIDRef = React.useRef("robot_id_reference"); // ロボットUUID 保持用
-  
-  const [vrModeAngle,setVrModeAngle] = React.useState(-180);       // ロボット回転角度
-  const [vrModeOffsetX,setVrModeOffsetX] = React.useState(0.55);   // X offset
-  const [base_rotation, setBaseRotation] = React.useState(`-90 -180 0`);     // ベース角度
-  const [base_position, setBasePosition] = React.useState(`0.55 0.55 -1`);   // ベース位置
+
+  const [vrModeAngle, setVrModeAngle] = React.useState(90);       // ロボット回転角度
+  const [vrModeOffsetX, setVrModeOffsetX] = React.useState(0.35);   // X offset
+  const [base_rotation, setBaseRotation] = React.useState(`-90 90 0`);     // ベース角度
+  const [base_position, setBasePosition] = React.useState(`0.35 0.75 -1`);   // ベース位置
+
+  const [draw_ready, set_draw_ready] = React.useState(false)
+
+  const [debug_message, set_debug_message] = React.useState("")
+  const add_debug_message = (message) => {
+    set_debug_message((prev) => (prev + " " + message))
+  }
+
+  const [rtcStats, set_rtcStats] = React.useState([])
 
   const nova2_ref = React.useRef(null);
 
@@ -59,54 +68,73 @@ export default function Home(props) {
 
   // MQTT 対応
   React.useEffect(() => {
-    setupMQTT(props, robotIDRef, nova2_ref); // useEffect で1回だけ実行される。
+    setupMQTT(props, robotIDRef, nova2_ref, set_draw_ready); // useEffect で1回だけ実行される。
+
+
   }, []);
 
   // Cookie から初期値取得
-  React.useEffect(()=>{ 
-     getCookiesForInitalize(props.appmode, setVrModeAngle, setVrModeOffsetX);
-  },[]);
+  React.useEffect(() => {
+    getCookiesForInitalize(props.appmode, setVrModeAngle, setVrModeOffsetX);
+  }, []);
   // base_position, base_rotation 更新
-  React.useEffect(()=>{
-    setBasePosition(`${vrModeOffsetX} 0.55 -1`);
+  React.useEffect(() => {
+    setBasePosition(`${vrModeOffsetX} 0.75 -1`);
     setBaseRotation(`-90 ${vrModeAngle} 0`);
     console.log("Home base_pos, rotation:", base_position, base_rotation);
-  },[vrModeAngle, vrModeOffsetX]);
+  }, [vrModeAngle, vrModeOffsetX]);
+  
+  
+  React.useEffect(() => {
+    console.log("Draw Ready!");
+  }, [draw_ready]);
+
+    return (
+      <>
+        <a-scene xr-mode-ui={`enabled: ${!(props.appmode === AppMode.viewer) ? 'true' : 'false'}; XRMode: xr`} >
+          <a-entity id="robot-registry"
+            robot-registry
+            event-distributor>
+            <VrControllerComponents appmode={props.appmode} />
+          </a-entity>
+          <a-entity camera position="0 1.7 1"
+            look-controls
+            wasd-controls="acceleration: 200"
+          ></a-entity>
+
+          <a-camera id="camera" stereocam ></a-camera>
 
 
-  return (
-    <>
-      <a-scene scene xr-mode-ui={`enabled: ${!(props.appmode === AppMode.viewer) ? 'true' : 'false'}; XRMode: xr`} >
-        <a-entity id="robot-registry"
-          robot-registry
-          event-distributor>
-          <VrControllerComponents appmode={props.appmode} />
-        </a-entity>
-        <a-entity camera position="0 1.7 1"
-          look-controls
-          wasd-controls="acceleration: 200"
-        ></a-entity>
+          {  // ステレオカメラ使うか extra-camera={props.appmode}>
+            (props.appmode === AppMode.withCam || props.appmode === AppMode.withDualCam || props.appmode === AppMode.monitor) ?
+              <StereoVideo rendered={draw_ready} set_rtcStats={set_rtcStats} 
+                appmode={props.appmode}
+              /> : <></>
+          }
 
 
-        <a-plane id="nova2-plane"
-          ref={nova2_ref}
-          position={base_position} rotation={base_rotation}
 
-          width="1" height="1" color="#7BC8A4"
-          material="opacity: 0.5; transparent: true; side: double;"
-          robot-loader="model: nova2_robot"
-          ik-worker={initial_pose}
-          reflect-worker-joints={`appmode: ${props.appmode}`}
-          arm-motion-ui
-          grip-control
-          default-event-target
-        />
+          <a-plane id="nova2-plane"
+            ref={nova2_ref}
+            position={base_position} rotation={base_rotation}
+
+            width="0.5" height="0.5" color="#7BC8A4"
+            material="opacity: 0.3; transparent: true; side: double;"
+            robot-loader="model: nova2_robot"
+            ik-worker={initial_pose}
+            reflect-worker-joints={`appmode: ${props.appmode}`}
+            arm-motion-ui={base_position+":"+base_rotation}
+            grip-control
+            default-event-target
+          />
           {/* motion-dynamic-filter */}
-        {/* <a-sky color="#ECECEC"></a-sky> 
+          {/* <a-sky color="#ECECEC"></a-sky> 
                    ik-worker={`${deg90}, ${-deg90}, ${deg90}, 0, ${-deg90}, 0`}
 
         */}
-      </a-scene>
-    </>
-  );
+        </a-scene>
+      </>
+    );
+
+
 }

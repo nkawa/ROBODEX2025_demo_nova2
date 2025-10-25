@@ -61,6 +61,7 @@ AFRAME.registerComponent('ik-worker', {
     }, { once: true });
   },
   remove: function () {
-    if (this?.remove) this.remove();
+    // 無限ループだ！
+    //if (this?.remove) this.remove();
   }
 });

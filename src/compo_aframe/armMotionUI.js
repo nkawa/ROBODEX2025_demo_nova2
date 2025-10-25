@@ -17,12 +17,15 @@ function workerPose(el) {
 }
 
 AFRAME.registerComponent('arm-motion-ui', {
+  schema :
+    {type: 'string', default: "0 0 0:0 0 0"}
+  ,
   init: function () {
     const myColor = this.el.getAttribute('material').color;
     const frameMarker = document.createElement('a-entity');
     console.log("Arm motion ui initializing!!")
     // target 表示用
-    frameMarker.setAttribute('a-xy-axes-frame', {
+    frameMarker.setAttribute('a-xy-axes-frame', { // 上下逆にしています。
       length: 0.05,
       radius: 0.002,
       sphere: 0.008,
@@ -37,18 +40,14 @@ AFRAME.registerComponent('arm-motion-ui', {
     //
     this.triggerdownState = false;
     this.vrControllerEl = null;
-    this.objStartingPose = [new THREE.Vector3(0, 0, 0),
-    new THREE.Quaternion(0, 0, 0, 1)];
-    this.vrCtrlStartingPoseInv = [new THREE.Vector3(0, 0, 0),
-    new THREE.Quaternion(0, 0, 0, 1)];
-    this.worldToBase = [this.el.object3D.position,
-    this.el.object3D.quaternion];
+    this.objStartingPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlStartingPoseInv = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
+    this.worldToBase = [this.el.object3D.position,this.el.object3D.quaternion];
+    // これの位置がかわるので問題になる！
     this.baseToWorld = isoInvert(this.worldToBase);
 
-    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0),
-    new THREE.Quaternion(0, 0, 0, 1)];
-    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0),
-    new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
 
     this.el.addEventListener('triggerdown', (evt) => {
       console.log('### trigger down event. laserVisible: ',
@@ -140,6 +139,13 @@ AFRAME.registerComponent('arm-motion-ui', {
         type: 'destination',
         endLinkPose: m4.elements
       });
+    }
+  },
+  update: function(oldData){
+    console.log("Update armUI",oldData)
+    if (oldData != undefined){// 初回のupdate以外
+      this.worldToBase = [this.el.object3D.position,this.el.object3D.quaternion];
+      this.baseToWorld = isoInvert(this.worldToBase);
     }
   }
 });

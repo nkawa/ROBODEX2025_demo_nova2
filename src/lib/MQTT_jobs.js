@@ -85,7 +85,7 @@ const waitSlrmReady = async (robotDOMRef, message) => {
 }
 
 
-export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
+export const setupMQTT = (props, robotIDRef, robotDOMRef, set_draw_ready) => {
   firstReceiveJoint = true; // 最初のジョイント受信フラグ
   receive_state = JointReceiveStatus.READY // 実ロボットからの受信状態
 
@@ -102,6 +102,8 @@ export const setupMQTT = (props, robotIDRef, robotDOMRef) => {
         console.log("Publish request robot", requestInfo)
         publishMQTT(MQTT_REQUEST_TOPIC, JSON.stringify(requestInfo));
         receive_state = JointReceiveStatus.ROBOT_REQUESTED;
+        set_draw_ready(true); // robot request 出すなら、 draw ready でいいよね？
+
       } else {
         console.log("Can't request robot, SLRM not ready")
       }

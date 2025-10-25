@@ -137,7 +137,10 @@ export default function Page() {
           <a href="/practice" className="button">
             練習モード
           </a>
-          <a href="/nova2_withDualCam" className="button">
+          <a href="/setCookie" className="button">
+            Cookie 設定（角度・位置）)
+          </a>
+          <a href="/nova2_withCam" className="button">
             カメラ付き(notyet)
           </a>
         </div>
