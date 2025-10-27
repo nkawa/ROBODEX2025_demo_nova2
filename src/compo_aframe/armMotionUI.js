@@ -100,13 +100,10 @@ AFRAME.registerComponent('arm-motion-ui', {
       const vrControllerPose = isoMultiply(this.baseToWorld,
         [ctrlEl.object3D.position,
         ctrlEl.object3D.quaternion]);
-
       const vrCtrlLastPoseInv = isoInvert(this.vrCtrlLastPose)
       const vrCtrlDiffTick = isoMultiply(vrCtrlLastPoseInv, vrControllerPose)
       let vrCtrlDiffTickFiltered = [vrCtrlDiffTick[0], vrCtrlDiffTick[1]]
       const motionFiltering = this.el.components['motion-dynamic-filter'];
-      
-//      console.log(motionFiltering)
       if (motionFiltering) {
         const filtered = motionFiltering.applyFilters({
           detail: {

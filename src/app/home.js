@@ -97,6 +97,7 @@ export default function Home(props) {
           robot-loader="model: nova2_robot"
           ik-worker={initial_pose}
           reflect-worker-joints={`appmode: ${props.appmode}`}
+          motion-dynamic-filter
           arm-motion-ui
           grip-control
           default-event-target
