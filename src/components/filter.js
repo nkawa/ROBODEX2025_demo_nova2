@@ -98,8 +98,8 @@ export class MovingAverageMotionFilter {
 
 const MOVEMENT_EMPHASIZE_DEFAULTS = {
   threshold: 0.00005,
-  a:2/0.0001,
-  b:0,
+  a: 2 / 0.0001,
+  b: 0,
   maxAcceleration: 2,
   mode: 'position'
 };
@@ -154,16 +154,16 @@ export const suppressRotationFilter = (position, quaternion, params = ROTATION_S
 const calculateEmphasizeScale = (motionDifference, params) => {
   let acceleration = 1
   // 以前まではposition, quaternionの両方で同じ関数を用いていたがとりあえずの実装では違う．position側に統一予定
-  if(params.mode == "position"){
+  if (params.mode == "position") {
     // position
-    if(motionDifference > params.threshold){
-      acceleration = params.a*motionDifference + params.b
+    if (motionDifference > params.threshold) {
+      acceleration = params.a * motionDifference + params.b
     }
-  }else {
+  } else {
     // quaternon
     if (motionDifference < params.threshold) return 1.0;
     const normalizedInput = motionDifference - params.threshold;
-    acceleration = 1.0 + (params.maxAcceleration - 1) / (1+Math.exp(-params.accelerationFactor*normalizedInput))
+    acceleration = 1.0 + (params.maxAcceleration - 1) / (1 + Math.exp(-params.accelerationFactor * normalizedInput))
   }
 
   return Math.min(acceleration, params.maxAcceleration);

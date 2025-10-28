@@ -17,8 +17,8 @@ function workerPose(el) {
 }
 
 AFRAME.registerComponent('arm-motion-ui', {
-  schema :
-    {type: 'string', default: "0 0 0:0 0 0"}
+  schema:
+    { type: 'string', default: "0 0 0:0 0 0" }
   ,
   init: function () {
     const myColor = this.el.getAttribute('material').color;
@@ -40,14 +40,14 @@ AFRAME.registerComponent('arm-motion-ui', {
     //
     this.triggerdownState = false;
     this.vrControllerEl = null;
-    this.objStartingPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
-    this.vrCtrlStartingPoseInv = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
-    this.worldToBase = [this.el.object3D.position,this.el.object3D.quaternion];
+    this.objStartingPose = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlStartingPoseInv = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
+    this.worldToBase = [this.el.object3D.position, this.el.object3D.quaternion];
     // これの位置がかわるので問題になる！
     this.baseToWorld = isoInvert(this.worldToBase);
 
-    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
-    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
 
     this.el.addEventListener('triggerdown', (evt) => {
       console.log('### trigger down event. laserVisible: ',
@@ -99,6 +99,7 @@ AFRAME.registerComponent('arm-motion-ui', {
       const vrControllerPose = isoMultiply(this.baseToWorld,
         [ctrlEl.object3D.position,
         ctrlEl.object3D.quaternion]);
+
       const vrCtrlLastPoseInv = isoInvert(this.vrCtrlLastPose)
       const vrCtrlDiffTick = isoMultiply(vrCtrlLastPoseInv, vrControllerPose)
       let vrCtrlDiffTickFiltered = [vrCtrlDiffTick[0], vrCtrlDiffTick[1]]
@@ -145,10 +146,10 @@ AFRAME.registerComponent('arm-motion-ui', {
       });
     }
   },
-  update: function(oldData){
-    console.log("Update armUI",oldData)
-    if (oldData != undefined){// 初回のupdate以外
-      this.worldToBase = [this.el.object3D.position,this.el.object3D.quaternion];
+  update: function (oldData) {
+    console.log("Update armUI", oldData)
+    if (oldData != undefined) {// 初回のupdate以外
+      this.worldToBase = [this.el.object3D.position, this.el.object3D.quaternion];
       this.baseToWorld = isoInvert(this.worldToBase);
     }
   }
