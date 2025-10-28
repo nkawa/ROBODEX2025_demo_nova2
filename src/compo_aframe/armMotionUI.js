@@ -17,8 +17,8 @@ function workerPose(el) {
 }
 
 AFRAME.registerComponent('arm-motion-ui', {
-  schema :
-    {type: 'string', default: "0 0 0:0 0 0"}
+  schema:
+    { type: 'string', default: "0 0 0:0 0 0" }
   ,
   init: function () {
     const myColor = this.el.getAttribute('material').color;
@@ -40,14 +40,14 @@ AFRAME.registerComponent('arm-motion-ui', {
     //
     this.triggerdownState = false;
     this.vrControllerEl = null;
-    this.objStartingPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
-    this.vrCtrlStartingPoseInv = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
-    this.worldToBase = [this.el.object3D.position,this.el.object3D.quaternion];
+    this.objStartingPose = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlStartingPoseInv = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
+    this.worldToBase = [this.el.object3D.position, this.el.object3D.quaternion];
     // これの位置がかわるので問題になる！
     this.baseToWorld = isoInvert(this.worldToBase);
 
-    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
-    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0),  new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastPose = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
+    this.vrCtrlLastFilteredPose = [new THREE.Vector3(0, 0, 0), new THREE.Quaternion(0, 0, 0, 1)];
 
     this.el.addEventListener('triggerdown', (evt) => {
       console.log('### trigger down event. laserVisible: ',
@@ -104,8 +104,6 @@ AFRAME.registerComponent('arm-motion-ui', {
       const vrCtrlDiffTick = isoMultiply(vrCtrlLastPoseInv, vrControllerPose)
       let vrCtrlDiffTickFiltered = [vrCtrlDiffTick[0], vrCtrlDiffTick[1]]
       const motionFiltering = this.el.components['motion-dynamic-filter'];
-      
-//      console.log(motionFiltering)
       if (motionFiltering) {
         const filtered = motionFiltering.applyFilters({
           detail: {
@@ -122,11 +120,18 @@ AFRAME.registerComponent('arm-motion-ui', {
 
       vrControllerDelta[0] = vrControllerDelta[0].multiplyScalar(1.0);
       vrControllerDelta[1].normalize();
-      const vrCtrlToObj = [new THREE.Vector3(0, 0, 0),
-      this.vrCtrlStartingPoseInv[1].clone()
-        .multiply(this.objStartingPose[1])];
-      const ObjToVrCtrl = [new THREE.Vector3(0, 0, 0),
-      vrCtrlToObj[1].clone().conjugate()];
+      const filteredVrCtrlStartingPoseInv = [
+        new THREE.Vector3(0, 0, 0),
+        vrControllerDelta[1].clone().multiply(vrControllerPose[1].clone().conjugate())
+      ]; //可変的な回転反映に対応したコントローラ座標系での開始位置を改めて，現在位置と差分から計算
+      const vrCtrlToObj = [
+        new THREE.Vector3(0, 0, 0),
+        filteredVrCtrlStartingPoseInv[1].clone().multiply(this.objStartingPose[1])
+      ];
+      const ObjToVrCtrl = [
+        new THREE.Vector3(0, 0, 0),
+        vrCtrlToObj[1].clone().conjugate()
+      ];
       const newObjPose = isoMultiply(isoMultiply(this.objStartingPose,
         isoMultiply(ObjToVrCtrl,
           vrControllerDelta)),
@@ -141,10 +146,10 @@ AFRAME.registerComponent('arm-motion-ui', {
       });
     }
   },
-  update: function(oldData){
-    console.log("Update armUI",oldData)
-    if (oldData != undefined){// 初回のupdate以外
-      this.worldToBase = [this.el.object3D.position,this.el.object3D.quaternion];
+  update: function (oldData) {
+    console.log("Update armUI", oldData)
+    if (oldData != undefined) {// 初回のupdate以外
+      this.worldToBase = [this.el.object3D.position, this.el.object3D.quaternion];
       this.baseToWorld = isoInvert(this.worldToBase);
     }
   }
