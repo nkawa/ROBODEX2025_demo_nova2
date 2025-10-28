@@ -85,5 +85,5 @@ export const subscribeMQTT = (topic) => {
 }
 
 export const publishMQTT = (topic, msg) => {
-    // mqttclient.publish(topic, msg);
+    mqttclient.publish(topic, msg);
 }

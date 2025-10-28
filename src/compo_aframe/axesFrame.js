@@ -45,7 +45,7 @@ AFRAME.registerComponent('a-axes-frame', {
     this.el.setAttribute('material', {
       color: this.data.color,
       opacity : this.data.opacity,
-      tranparent: this.data.opacity < 1.0
+      transparent: this.data.opacity < 1.0
     });
 
     this.el.setAttribute('scale', '1 1 1');
@@ -81,7 +81,7 @@ AFRAME.registerComponent('a-xy-axes-frame', {
     this.el.setAttribute('material', {
       color: this.data.color,
       opacity : this.data.opacity,
-      tranparent: this.data.opacity < 1.0
+      transparent: this.data.opacity < 1.0
     });
 
     this.el.setAttribute('scale', '1 1 1');

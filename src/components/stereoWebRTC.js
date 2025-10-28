@@ -4,7 +4,7 @@ import Script from 'next/script';
 import 'aframe'
 import Sora from "sora-js-sdk";
 import { AppMode } from '../app/appmode';
-import {userUUID} from './cookie_id';
+import { userUUID } from '../lib/cookie_id';
 
 
 import package_info from '../../package.json' // load version
@@ -21,8 +21,10 @@ let lastStatBytes = 0;
 
 
 export default function StereoVideo(props) {
-    const { rendered, stereo_visible, set_rtcStats,appmode } = props
+    const { rendered, set_rtcStats, appmode } = props
     const [objectRender, setObjectRender] = React.useState(false)
+    const [stereo_visible, set_stereo_visible] = React.useState(false)
+    
     const set_RealSense = (appmode === AppMode.withDualCam || appmode === AppMode.monitor); //realsenseを使う場合はtrueにする
 
 
@@ -33,24 +35,24 @@ export default function StereoVideo(props) {
             const statsReport = []
             const localCandidateStats = []
             for (const stat of stats.values()) {
-                if (stat.type === "codec"){
-//                    statsReport.push("codec: "+ stat.mimeType + "   type: " + stat.payloadType)
-                }else if (stat.type === "inbound-rtp" ) {
-//                    statsReport.push(stat.frameWidth+"x"+stat.frameHeight + "  " + stat.framesPerSecond+ " fps");
-//                   console.log("trasnport",stat)
-                }else if (stat.type === "transport" ) {
-                    const tdiff = stat.timestamp - lastStatTime; 
+                if (stat.type === "codec") {
+                    //                    statsReport.push("codec: "+ stat.mimeType + "   type: " + stat.payloadType)
+                } else if (stat.type === "inbound-rtp") {
+                    //                    statsReport.push(stat.frameWidth+"x"+stat.frameHeight + "  " + stat.framesPerSecond+ " fps");
+                    //                   console.log("trasnport",stat)
+                } else if (stat.type === "transport") {
+                    const tdiff = stat.timestamp - lastStatTime;
                     const bdiff = stat.bytesReceived - lastStatBytes;
-                    statsReport.push( Math.round(bdiff/ tdiff*80)/10  + " kbps");
+                    statsReport.push(Math.round(bdiff / tdiff * 80) / 10 + " kbps");
                     lastStatTime = stat.timestamp;
                     lastStatBytes = stat.bytesReceived;
                 }
                 // RTCStatsReport の各統計情報を statsReport に追
-//                statsReport.push(stat)
-//                console.log('stats report', stat)
+                //                statsReport.push(stat)
+                //                console.log('stats report', stat)
             }
             // local-candidate の最初に出現する TURN サーバーの URL を取得
-//            console.log('setStatsReport', statsReport)
+            //            console.log('setStatsReport', statsReport)
             set_rtcStats(statsReport)
         }
     }
@@ -62,10 +64,10 @@ export default function StereoVideo(props) {
             console.log("Using sora-js-sdk version:", Sora.version());
             //const signalingUrl = 'wss://sora.uclab.jp/signaling'; //demo用
             const signalingUrl = 'wss://sora3.uclab.jp/signaling'; // 202508 demo用
-//            const signalingUrl = 'wss://sora2.uclab.jp/signaling'; // 202508 demo用
-            const channelId = 'uclab-vr180';
-            const channelId1 = 'uclab-hand';
-            const audioChannelId = 'uclab-audio'; // 202508 のdemo では、使わない予定
+            //            const signalingUrl = 'wss://sora2.uclab.jp/signaling'; // 202508 demo用
+            const channelId = 'nova2-vr180';
+            const channelId1 = 'nova2-hand';
+            const audioChannelId = 'nova2-audio'; // 202508 のdemo では、使わない予定
             const sora = Sora.connection(signalingUrl);
             const bundleId = 'vrdemo-sora-bundle';
 
@@ -103,32 +105,32 @@ export default function StereoVideo(props) {
             });
             recvonly.on('push', (message, transportType) => {
                 console.log("Push event from sora:", message, transportType);
-                
+
             });
             recvonly.on('notify', (message, transportType) => {
-//                console.log("Notify Event from sora:", message, transportType);
-                
+                //                console.log("Notify Event from sora:", message, transportType);
+
             });
             recvonly.on('timeout', () => {
-//                console.log("Timeout Event from sora:", event);
-                
+                //                console.log("Timeout Event from sora:", event);
+
             });
             recvonly.on('message', (message) => {
-//                console.log("Message Event from sora:", message.label, message.data);
-                
+                //                console.log("Message Event from sora:", message.label, message.data);
+
             });
             recvonly.on('datachannel', (event) => {
-//                console.log("Datachannel Event from sora:", event.datachannel.label, event.datachannel.direction);
-                
+                //                console.log("Datachannel Event from sora:", event.datachannel.label, event.datachannel.direction);
+
             });
             recvonly.on('signaling', (event) => {
-//                console.log("Signaling Event from sora:", event);
-                
+                //                console.log("Signaling Event from sora:", event);
+
             });
             recvonly.on('timeline', (event) => {
-//                console.log("Timeline Event from sora:", event);              
+                //                console.log("Timeline Event from sora:", event);              
             });
-            
+
 
             recvonly.on('track', event => {
                 if (event.track.kind === 'video') {
@@ -137,6 +139,7 @@ export default function StereoVideo(props) {
                     remoteVideo.muted = true; // これで自動再生OKに！
                     remoteVideo.srcObject = mediaStream;
                     remoteVideo.play().then(() => {
+                        console.log("Video play!?")
                         //                        const playButton = document.querySelector('#videoPlayButton');
                         //                        playButton.setAttribute('visible', 'false')
                     })
@@ -146,30 +149,31 @@ export default function StereoVideo(props) {
                     remoteVideo.onloadeddata = () => {
                         console.log('Video data loaded');
 
-                        const scene = document.querySelector('a-scene');
-/*                        scene.addEventListener('loaded', () => {
-//                            console.log('Scene fully loaded');
+                        set_stereo_visible(true)
 
-                            const leftSphere = document.getElementById('leftSphere');
-                            const rightSphere = document.getElementById('rightSphere');
 
-                            if (leftSphere && rightSphere) {
-                                leftSphere.setAttribute('material', { src: '#remotevideo' });
-                                rightSphere.setAttribute('material', { src: '#remotevideo' });
 
-                                console.log('Left sphere material component:', leftSphere.components.material);
-                                console.log('Right sphere material component:', rightSphere.components.material);
-                            } else {
-                                console.error('Left or right sphere not found in the DOM');
-                            }
+                        const leftSphere = document.getElementById('leftSphere');
+                        const rightSphere = document.getElementById('rightSphere');
 
-  //                      });
-  */
+                        if (leftSphere && rightSphere) {
+//                            leftSphere.setAttribute('material', { src: '#remotevideo' });
+//                            rightSphere.setAttribute('material', { src: '#remotevideo' });
+
+                            remoteVideo.play();
+
+                            console.log('Left sphere material component:', leftSphere.components.material);
+                            console.log('Right sphere material component:', rightSphere.components.material);
+                        } else {
+                            console.error('Left or right sphere not found in the DOM');
+                        }
+
+
                     };
                 }
             });
             recvonly.connect().then(() => {
-//                console.log('Successfully connected to Sora for main stereo');
+                //                console.log('Successfully connected to Sora for main stereo');
                 // start cheking stats
                 setInterval(() => {
                     setStatsReport(recvonly);
@@ -210,17 +214,17 @@ export default function StereoVideo(props) {
                         remoteVideo1.muted = true; // これで自動再生OKに！
                         remoteVideo1.srcObject = mediaStream;
                         remoteVideo1.play().then(() => {
-//                            console.log("play realsense")
+                            //                            console.log("play realsense")
                         })
 
                         console.log('MediaStream assigned to srcObject:', remoteVideo1.srcObject);
 
                         remoteVideo1.onloadeddata = () => {
-//                            console.log('Video data loaded');
+                            //                            console.log('Video data loaded');
 
                             const scene = document.querySelector('a-scene');
                             scene.addEventListener('loaded', () => {
-//                                console.log('Scene fully loaded');
+                                //                                console.log('Scene fully loaded');
 
                                 if (set_RealSense) {
                                     const plate = document.getElementById('videoPlate');
@@ -232,7 +236,7 @@ export default function StereoVideo(props) {
                     }
                 });
                 recvonly1.connect().then(() => {
-//                    console.log('Successfully connected to Sora');
+                    //                    console.log('Successfully connected to Sora');
                 }).catch(err => {
                     console.error('Sora connection error:', err);
                 });
@@ -330,9 +334,10 @@ export default function StereoVideo(props) {
         const scene = document.querySelector('a-scene');
         const UIBack = document.querySelector('#UIBack');
         if (scene && rendered) {
-            console.log("Add Stereo Assets")
+            console.log("Add Stereo Assets", rendered)
             //assetの追加
             const assets = document.createElement('a-assets');
+            assets.setAttribute('id','videoAssets')
 
             const remoteVideo = document.createElement('video');
             remoteVideo.setAttribute('id', 'remotevideo');
@@ -341,7 +346,7 @@ export default function StereoVideo(props) {
             remoteVideo.setAttribute('crossOrigin', 'anonymous');
             assets.appendChild(remoteVideo);
 
-            const leftCanvas  = document.createElement('canvas');
+            const leftCanvas = document.createElement('canvas');
 
 
             //const leftCanvas  = document.createElement('canvas');
@@ -381,8 +386,8 @@ export default function StereoVideo(props) {
             //rightSphere.setAttribute('material', 'shader:flat; src:#stereo-right; side:back');
             rightSphere.setAttribute('stereo', 'eye:right; mode: half;');
             rightSphere.setAttribute('visible', true);
-            
-            
+
+
             if (set_RealSense) {
                 const videoPlane = document.createElement('a-plane');
                 videoPlane.setAttribute('id', 'videoPlate');
@@ -406,37 +411,29 @@ export default function StereoVideo(props) {
     }, [rendered])
 
     React.useEffect(() => {
-        const leftSphere = document.querySelector('#leftSphere');
-        const rightSphere = document.querySelector('#rightSphere');
-        //        const backStereoUI = document.querySelector('#backStereoUI');
-        console.log("set stereo visible:", stereo_visible)
-        leftSphere.setAttribute('visible', `${stereo_visible}`)
-        rightSphere.setAttribute('visible', `${stereo_visible}`)
-        //        backStereoUI.setAttribute('visible', `${!stereo_visible}`)
+        if (rendered) {
+//            console.log("Set Stereo video assets to scene!")
+//            const assets = document.querySelector('#videoAssets');
+//            const scene = document.querySelector('a-scene');
+//            scene.appendChild(assets);
+
+            const leftSphere = document.querySelector('#leftSphere');
+            const rightSphere = document.querySelector('#rightSphere');
+            //        const backStereoUI = document.querySelector('#backStereoUI');
+            console.log("set stereo visible:", stereo_visible)
+            leftSphere.setAttribute('visible', `${stereo_visible}`)
+            rightSphere.setAttribute('visible', `${stereo_visible}`)
+            //        backStereoUI.setAttribute('visible', `${!stereo_visible}`)
+        }
 
     }, [stereo_visible])
-
-    /*
-    React.useEffect(() => {
-        const intervalId = setInterval(() => {
-            const entity = document.getElementById('UIBack'); // idでエンティティを取得
-            if (entity) {
-                const position = entity.getAttribute('position'); // 位置を取得
-                const rotation = entity.getAttribute('rotation'); // 位置を取得
-                setCameraPosition({ x: position.x, y: position.y, z: position.z })
-                setCameraRotation({ x: rotation.x, y: rotation.y, z: rotation.z })
-            }
-        }, 10); // 100msごとに位置を更新
-
-        return () => clearInterval(intervalId); // クリーンアップ
-    }, []);
-    */
 
     return (
         <>
         </>
     )
 }
+
 
 if (!('stereo' in AFRAME.components)) {
     console.log('Registering stereo component into A-Frame');
@@ -476,13 +473,13 @@ if (!('stereo' in AFRAME.components)) {
             function applyUVmap(geometry, eye /* 'left'|'right' */, opts = {}) {
                 const uv = geometry.attributes.uv;
 
-                const uKEdge   = opts.uKEdge   ?? 0.35;   // 上下端での最大ブレンド
+                const uKEdge = opts.uKEdge ?? 0.35;   // 上下端での最大ブレンド
                 const uKCenter = opts.uKCenter ?? 0.10;   // 中央での最小ブレンド
-                const uSharp   = opts.uSharp   ?? 0.9;    // 拡張カーブの鋭さ
+                const uSharp = opts.uSharp ?? 0.9;    // 拡張カーブの鋭さ
                 const vToUWeightPower = opts.vToUWeightPower ?? 2;
 
-                const uOffset = (eye === 'left') ? 0.0 : 0.5; 
-                const uScale  = 0.5;
+                const uOffset = (eye === 'left') ? 0.0 : 0.5;
+                const uScale = 0.5;
 
                 const vCropTop = opts.vCropTop ?? 0.0;
                 const vCropBottom = opts.vCropBottom ?? 0.0;
@@ -492,17 +489,17 @@ if (!('stereo' in AFRAME.components)) {
                 const PADDING_V = 0.06; // 上下10%
 
                 for (let i = 0; i < uv.count; i++) {
-                    const u0 = uv.getX(i); 
+                    const u0 = uv.getX(i);
                     const v0 = uv.getY(i);
 
                     //const u_lin = u0 * uScale + uOffset;
                     //const v_lin = v0 * vRange + vCropBottom;
-                    const u_lin   = u0 * uScale + uOffset;
+                    const u_lin = u0 * uScale + uOffset;
                     const u_local = (u_lin - uOffset) / uScale;
 
-                    const v_lin   = v0 * vRange + vCropBottom;     // [0,1]
+                    const v_lin = v0 * vRange + vCropBottom;     // [0,1]
                     const v_local = v_lin;
-                    
+
                     const invURange = 1.0 / Math.max(1e-6, (1.0 - 2.0 * PADDING_U));
                     const invVRange = 1.0 / Math.max(1e-6, (1.0 - 2.0 * PADDING_V));
 
@@ -512,19 +509,19 @@ if (!('stereo' in AFRAME.components)) {
                     // 0..1 にクリップ（歪み関数の定義域を守る）
                     u_eff = Math.min(1.0, Math.max(0.0, u_eff));
                     v_eff = Math.min(1.0, Math.max(0.0, v_eff));
-                    
-                    const v_adj  = v_eff;
-                
+
+                    const v_adj = v_eff;
+
                     const dVEdge = Math.abs(v_eff - 0.5) / 0.5;                 // 中央0, 上下端1
                     const wEdgeV = Math.pow(dVEdge, vToUWeightPower ?? 2.0);
                     const uK_eff = uKCenter + (uKEdge - uKCenter) * wEdgeV;     // Vに依存する実効強度
 
                     const u_edge = uEdgeMapParam(u_eff, uSharp);                // U端方向へ寄せる写像
-                    const u_mix  = (1.0 - uK_eff) * u_eff + uK_eff * u_edge;    // 補正混合
+                    const u_mix = (1.0 - uK_eff) * u_eff + uK_eff * u_edge;    // 補正混合
 
-                    const u_adj  = u_mix * uScale + uOffset;
+                    const u_adj = u_mix * uScale + uOffset;
 
-            
+
                     uv.setXY(i, u_adj, v_adj);
                 }
                 uv.needsUpdate = true;
@@ -541,7 +538,7 @@ if (!('stereo' in AFRAME.components)) {
                 } else {
                     geometry = new THREE.SphereGeometry(geo_def.radius || 100, geo_def.segmentsWidth || 64, geo_def.segmentsHeight || 64);
                 }
-                
+
                 //object3D.position.x = 0.032 * (this.data.eye === 'left' ? -1 : 1); //20?
                 //const axis = this.data.split === 'horizontal' ? 'y' : 'x';
                 //const offset = this.data.eye === 'left' ? (axis === 'y' ? { x: 0.05, y: 0 } : { x: 0, y: 0.5 }) : (axis === 'y' ? { x: 0.55, y: 0 } : { x: 0, y: 0 });
@@ -610,7 +607,13 @@ if (!('stereo' in AFRAME.components)) {
                     rootCam.layers.enable(1);
                     rootCam.layers.enable(2);
                 } else {
-                    rootCam.layers.enable(originalData.eye === 'left' ? 1 : 2);
+                    // if enter vr.. then omit ..
+                    const scene = document.querySelector('a-scene');
+                    if (!scene?.is('vr-mode')){
+                        rootCam.layers.enable(originalData.eye === 'left' ? 1 : 2);
+                    }else{
+                        rootCam.layers.set(0)
+                    }
                 }
             }
         },
